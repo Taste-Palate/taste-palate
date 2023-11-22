@@ -1,5 +1,5 @@
 const express = require("express");
-const { getMyPosts, getPosts, getPostDetail, createPost, patchPost, deletePost } = require("../controllers/post");
+const { getMyPosts, getPosts, getPostDetail, createPost, putPost, deletePost } = require("../controllers/post");
 const { verifyToken } = require("../middlewares");
 const { User, Post } = require("../models");
 
@@ -135,8 +135,62 @@ router.post("/writePost", async (req, res) => {
   }
 });
 
-router.patch("/:id", verifyToken, patchPost);
+router.put("getPostDetail/:id", verifyToken, putPost, async (req, res) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    const { title, content, imagePath, rating, location } = req.body;
 
-router.delete("/:id", verifyToken, deletePost);
+    if (!title || !content || !imagePath || !rating || !location) {
+      return res.status(400).json({
+        message: "공란이 없게 작성해주세요."
+      });
+    }
+    if (!post) {
+      return res.status(404).json({
+        message: "게시글이 존재하지 않습니다."
+      });
+    }
+    if (post.author !== res.locals.user.id) {
+      return res.status(401).json({
+        message: "게시글을 수정할 권한이 존재하지 않습니다."
+      });
+    }
+
+    post.title = title;
+    post.content = content;
+    post.imagePath = imagePath;
+    post.rating = rating;
+    post.location = location;
+
+    await post.save();
+  } catch (error) {
+    res.status(500).json({
+      message: "오류가 발생했습니다."
+    });
+  }
+});
+
+router.delete("getPostDetail/:id", verifyToken, deletePost, async (req, res) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+
+    if (!post) {
+      return res.status(404).json({
+        message: "게시글이 존재하지 않습니다."
+      });
+    }
+    if (post.author !== res.locals.user.id) {
+      return res.status(401).json({
+        message: "게시글을 삭제할 권한이 존재하지 않습니다."
+      });
+    }
+
+    await post.destroy();
+  } catch (error) {
+    res.status(500).json({
+      message: "오류가 발생했습니다."
+    });
+  }
+});
 
 module.exports = router;
