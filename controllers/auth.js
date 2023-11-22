@@ -94,6 +94,18 @@ exports.login = async (req, res) => {
   }
 };
 
+//로그아웃
+/*
+exports.logout = async (req, res) => {
+  try {
+    res.clearCookie("authorization");
+    return res.status(200).json({ message: "로그아웃 되었습니다." });
+  } catch (error) {
+    console.log(error);
+  }
+};
+*/
+
 exports.getMyProfile = async (req, res) => {
   try {
     const { id, email, nick } = res.locals.user;

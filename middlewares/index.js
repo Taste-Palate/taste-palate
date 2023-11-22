@@ -5,21 +5,25 @@ const { SECRET_KEY } = process.env;
 
 exports.verifyToken = async (req, res, next) => {
   const { authorization } = req.cookies;
+
+  if (!authorization) {
+    return res.status(404).json({ message: "로그인 후 사용이 가능합니다." });
+  }
+
   const [authType, authToken] = authorization.split(" ");
 
   if (authType !== "Bearer" || !authToken) {
     res.status(400).json({
-      errorMessage: "로그인 후 사용이 가능한 API 입니다."
+      errorMessage: "로그인 후 사용이 가능합니다."
     });
     return;
   }
 
   try {
     const authorization = jwt.verify(authToken, `${SECRET_KEY}`);
-    console.log(authorization);
 
     if (!authorization) {
-      return res.status(401).json({ message: "로그인 필요" });
+      return res.status(401).json({ message: "로그인 후 사용이 가능합니다." });
     }
 
     const findUser = await User.findOne({
@@ -27,13 +31,13 @@ exports.verifyToken = async (req, res, next) => {
     });
 
     if (!findUser) {
-      return res.status(401).json({ message: "로그인 해" });
+      return res.status(401).json({ message: "로그인 후 사용이 가능합니다." });
     }
 
     res.locals.user = findUser;
     next();
   } catch (error) {
     console.log(error);
-    return res.status(401).json({ message: "로그인 해줘" });
+    return res.status(401).json({ message: "로그인 후 사용이 가능합니다." });
   }
 };

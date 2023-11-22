@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../middlewares");
 
-const { join, login, getMyProfile } = require("../controllers/auth");
+const { join, login, logout, getMyProfile } = require("../controllers/auth");
 require("dotenv").config();
 
 // "/auth"
@@ -12,6 +12,9 @@ router.post("/join", join);
 
 //로그인
 router.post("/login", login);
+
+//로그아웃
+// router.get("/logout", logout);
 
 //내정보 조회
 router.get("/myInfo", verifyToken, getMyProfile);
