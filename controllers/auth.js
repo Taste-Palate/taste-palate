@@ -4,6 +4,8 @@ const db = require("../models");
 const User = db.User;
 const jwt = require("jsonwebtoken");
 const { locales } = require("validator/lib/isIBAN");
+
+require("dotenv").config();
 const { SECRET_KEY } = process.env;
 
 exports.join = async (req, res) => {
@@ -39,13 +41,7 @@ exports.join = async (req, res) => {
     }
 
     const bcryptPassword = await bcrypt.hash(password, 4);
-
-    console.log("실행중");
-    console.log(email, bcryptPassword, nick);
-
     await User.create({ email, password: bcryptPassword, nick });
-
-    console.log("실행완료");
 
     return res.status(201).json({
       success: "true",
@@ -81,10 +77,8 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, email: user.email, nick: user.nick }, `${SECRET_KEY}`, {
-      expiresIn: "1h"
+      expiresIn: "1d"
     });
-
-    console.log(token);
 
     res.cookie("authorization", `Bearer ${token}`);
 

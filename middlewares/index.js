@@ -4,8 +4,7 @@ const User = db.User;
 const { SECRET_KEY } = process.env;
 
 exports.verifyToken = async (req, res, next) => {
-  const { authorization } = req.cookies;
-
+  const { authorization } = req.cookies.authorization;
   if (!authorization) {
     return res.status(404).json({ message: "로그인 후 사용이 가능합니다." });
   }
