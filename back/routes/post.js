@@ -9,6 +9,7 @@ const router = express.Router();
 // "/posts"
 
 // 게시물 모두 조회
+// http://localhost:8000/posts/getPosts
 router.get("/getPosts", async (req, res) => {
   try {
     const product = await Post.findAll({

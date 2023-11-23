@@ -4,7 +4,9 @@ module.exports = (sequelize, DataTypes) => {
     {
       title: {
         type: DataTypes.STRING(255),
-        allowNull: false
+        allowNull: false,
+        validator: {
+        }
     },
     content: {
         type: DataTypes.TEXT,
