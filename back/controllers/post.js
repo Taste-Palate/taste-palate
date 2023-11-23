@@ -22,7 +22,7 @@ exports.createPost = async (req, res, next) => {
   return;
 };
 
-exports.patchPost = async (req, res, next) => {
+exports.putPost = async (req, res, next) => {
   console.log("게시글 수정이 실행되었습니다.");
   res.json("게시글 수정이 실행되었습니다.");
   return;

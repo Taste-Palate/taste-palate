@@ -1,5 +1,5 @@
 const express = require("express");
-const { getMyPosts, getPosts, getPostDetail, createPost, patchPost, deletePost } = require("../controllers/post");
+const { getMyPosts, getPosts, getPostDetail, createPost, putPost, deletePost } = require("../controllers/post");
 const { verifyToken } = require("../middlewares");
 const { User, Post } = require("../models");
 
@@ -9,9 +9,10 @@ const router = express.Router();
 // "/posts"
 
 // 게시물 모두 조회
+// http://localhost:8000/posts/getPosts
 router.get("/getPosts", async (req, res) => {
   try {
-    const product = await Post.findAll({
+    const post = await Post.findAll({
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
@@ -23,7 +24,7 @@ router.get("/getPosts", async (req, res) => {
     return res.json({
       success: true,
       message: "목록 조회 성공",
-      product
+      post
     });
   } catch (errMessage) {
     console.log(errMessage);
@@ -45,7 +46,7 @@ router.get("/getMyPosts", verifyToken, async (req, res) => {
 
     console.log(user);
 
-    const product = await Post.findAll({
+    const post = await Post.findAll({
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
@@ -57,7 +58,7 @@ router.get("/getMyPosts", verifyToken, async (req, res) => {
     return res.json({
       success: true,
       message: "나의 목록 조회 성공",
-      product
+      post
     });
   } catch (errMessage) {
     console.log(errMessage);
@@ -69,9 +70,9 @@ router.get("/getMyPosts", verifyToken, async (req, res) => {
 });
 
 // 게시물 상세조회
-router.get("/getPostDetail/:id", async (req, res) => {
+router.get("/getPosts/:id", verifyToken, async (req, res) => {
   try {
-    const product = await Post.findOne({
+    const post = await Post.findOne({
       where: { id: req.params.id },
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
@@ -81,49 +82,71 @@ router.get("/getPostDetail/:id", async (req, res) => {
         }
       ]
     });
-    return res.json({
-      success: true,
-      message: "상세 조회 성공",
-      product
-    });
+
+    if (!post) {
+      return res.status(401).json({
+        success: false,
+        message: "상세 조회 실패",
+        post
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "상세 조회 성공",
+        post
+      });
+    }
   } catch (errMessage) {
     console.log(errMessage);
-    return res.status(400).json({
+    return res.status(500).json({
       success: false,
-      message: "상세 조회 실패"
+      message: "Error!"
     });
   }
 });
 
 // 게시물 작성
-router.post("/writePost", async (req, res) => {
+router.post("/writePost", verifyToken, async (req, res) => {
   try {
     const { title, content, imagePath, rating, location } = req.body;
+
+    // 유저 찾기
+    const user = await User.findOne({
+      where: { email: res.locals.user.email }
+    });
+
+    const post = new Post({
+      userId: User.id,
+      title,
+      content,
+      imagePath,
+      rating,
+      location
+    });
+
+    await post.save();
+
     if (!title || !content || !imagePath || !rating || !location) {
       // 공란이 있으면 작성 실패
       if (title) {
         alert("제목을 작성해주세요");
-      }
-      if (content) {
+      } else if (content) {
         alert("내용을 작성해주세요");
         return;
-      }
-      if (imagePath) {
+      } else if (imagePath) {
         alert("이미지를 삽입해주세요");
         return;
-      }
-      if (rating) {
+      } else if (rating) {
         alert("별점을 등록해주세요");
         return;
-      }
-      if (location) {
+      } else if (location) {
         alert("위치를 설정해주세요");
         return;
       }
     } else {
       return res.status(200).json({
         success: true,
-        message: "게시글 추가 성공"
+        message: "게시글 등록에 성공하였습니다."
       });
     }
   } catch (errMessage) {
@@ -135,8 +158,62 @@ router.post("/writePost", async (req, res) => {
   }
 });
 
-router.patch("/:id", verifyToken, patchPost);
+router.put("getPostDetail/:id", verifyToken, putPost, async (req, res) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    const { title, content, imagePath, rating, location } = req.body;
 
-router.delete("/:id", verifyToken, deletePost);
+    if (!title || !content || !imagePath || !rating || !location) {
+      return res.status(400).json({
+        message: "공란이 없게 작성해주세요."
+      });
+    }
+    if (!post) {
+      return res.status(404).json({
+        message: "게시글이 존재하지 않습니다."
+      });
+    }
+    if (post.author !== res.locals.user.id) {
+      return res.status(401).json({
+        message: "게시글을 수정할 권한이 존재하지 않습니다."
+      });
+    }
+
+    post.title = title;
+    post.content = content;
+    post.imagePath = imagePath;
+    post.rating = rating;
+    post.location = location;
+
+    await post.save();
+  } catch (error) {
+    res.status(500).json({
+      message: "오류가 발생했습니다."
+    });
+  }
+});
+
+router.delete("getPostDetail/:id", verifyToken, deletePost, async (req, res) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+
+    if (!post) {
+      return res.status(404).json({
+        message: "게시글이 존재하지 않습니다."
+      });
+    }
+    if (post.author !== res.locals.user.id) {
+      return res.status(401).json({
+        message: "게시글을 삭제할 권한이 존재하지 않습니다."
+      });
+    }
+
+    await post.destroy();
+  } catch (error) {
+    res.status(500).json({
+      message: "오류가 발생했습니다."
+    });
+  }
+});
 
 module.exports = router;
