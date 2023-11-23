@@ -9,9 +9,9 @@ const router = express.Router();
 // "/posts"
 
 // 게시물 모두 조회
-router.get("/getPosts", async (req, res) => {
+router.get("/getPosts", verifyToken, async (req, res) => {
   try {
-    const product = await Post.findAll({
+    const post = await Post.findAll({
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
@@ -23,7 +23,7 @@ router.get("/getPosts", async (req, res) => {
     return res.json({
       success: true,
       message: "목록 조회 성공",
-      product
+      post
     });
   } catch (errMessage) {
     console.log(errMessage);
@@ -45,7 +45,7 @@ router.get("/getMyPosts", verifyToken, async (req, res) => {
 
     console.log(user);
 
-    const product = await Post.findAll({
+    const post = await Post.findAll({
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
@@ -57,7 +57,7 @@ router.get("/getMyPosts", verifyToken, async (req, res) => {
     return res.json({
       success: true,
       message: "나의 목록 조회 성공",
-      product
+      post
     });
   } catch (errMessage) {
     console.log(errMessage);
@@ -69,9 +69,9 @@ router.get("/getMyPosts", verifyToken, async (req, res) => {
 });
 
 // 게시물 상세조회
-router.get("/getPostDetail/:id", async (req, res) => {
+router.get("/getPosts/:id", verifyToken, async (req, res) => {
   try {
-    const product = await Post.findOne({
+    const post = await Post.findOne({
       where: { id: req.params.id },
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
@@ -81,49 +81,71 @@ router.get("/getPostDetail/:id", async (req, res) => {
         }
       ]
     });
-    return res.json({
-      success: true,
-      message: "상세 조회 성공",
-      product
-    });
+
+    if (!post) {
+      return res.status(401).json({
+        success: false,
+        message: "상세 조회 실패",
+        post
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "상세 조회 성공",
+        post
+      });
+    }
   } catch (errMessage) {
     console.log(errMessage);
-    return res.status(400).json({
+    return res.status(500).json({
       success: false,
-      message: "상세 조회 실패"
+      message: "Error!"
     });
   }
 });
 
 // 게시물 작성
-router.post("/writePost", async (req, res) => {
+router.post("/writePost", verifyToken, async (req, res) => {
   try {
     const { title, content, imagePath, rating, location } = req.body;
+
+    // 유저 찾기
+    const user = await User.findOne({
+      where: { email: res.locals.user.email }
+    });
+
+    const post = new Post({
+      userId: User.id,
+      title,
+      content,
+      imagePath,
+      rating,
+      location
+    });
+
+    await post.save();
+
     if (!title || !content || !imagePath || !rating || !location) {
       // 공란이 있으면 작성 실패
       if (title) {
         alert("제목을 작성해주세요");
-      }
-      if (content) {
+      } else if (content) {
         alert("내용을 작성해주세요");
         return;
-      }
-      if (imagePath) {
+      } else if (imagePath) {
         alert("이미지를 삽입해주세요");
         return;
-      }
-      if (rating) {
+      } else if (rating) {
         alert("별점을 등록해주세요");
         return;
-      }
-      if (location) {
+      } else if (location) {
         alert("위치를 설정해주세요");
         return;
       }
     } else {
       return res.status(200).json({
         success: true,
-        message: "게시글 추가 성공"
+        message: "게시글 등록에 성공하였습니다."
       });
     }
   } catch (errMessage) {
