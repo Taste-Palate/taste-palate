@@ -95,7 +95,7 @@ exports.login = async (req, res) => {
 };
 
 //로그아웃
-/*
+
 exports.logout = async (req, res) => {
   try {
     res.clearCookie("authorization");
@@ -104,7 +104,7 @@ exports.logout = async (req, res) => {
     console.log(error);
   }
 };
-*/
+
 
 exports.getMyProfile = async (req, res) => {
   try {
