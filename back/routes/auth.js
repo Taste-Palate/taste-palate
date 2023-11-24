@@ -14,7 +14,7 @@ router.post("/join", join);
 router.post("/login", login);
 
 //로그아웃
-// router.get("/logout", logout);
+router.get("/logout", logout);
 
 //내정보 조회
 router.get("/myInfo", verifyToken, getMyProfile);

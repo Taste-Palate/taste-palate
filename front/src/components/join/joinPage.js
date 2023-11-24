@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./joinPage.scss";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const JoinPage = () => {
   const [nickname, setNickname] = useState("");
@@ -8,19 +9,24 @@ const JoinPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [data, setData] = useState(null);
+  const navigate = useNavigate();
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    // 여기에서 회원가입 로직을 추가하면 됩니다.
-    axios
-      .post("/auth/join", {
+
+    try {
+        await axios.post("/auth/join", {
         email: email,
         password: password,
         passwordCheck: confirmPassword,
         nick: nickname,
-      })
-      .then((data) => setData(JSON.stringify(data)))
-      .catch((error) => setData(JSON.stringify(error)));
+      });
+      alert("회원가입에 성공하였습니다.");
+      navigate("/auth/login"); // 로그인 페이지로 이동
+    } catch (error) {
+      // 회원가입 실패 시
+      setData(error.response.data.message);
+    }
   };
 
   return (
