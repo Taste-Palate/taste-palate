@@ -21,6 +21,7 @@ const JoinPage = () => {
         passwordCheck: confirmPassword,
         nick: nickname,
       });
+      alert("회원가입에 성공하였습니다.");
       navigate("/auth/login"); // 로그인 페이지로 이동
     } catch (error) {
       // 회원가입 실패 시

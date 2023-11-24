@@ -5,6 +5,46 @@ import MainTemplate from "./mainTemplate";
 import MainTopBar from "./mainTopBar";
 import MainTopNavigationBar from "./mainTopNavigationBar";
 import MainTopSearchBar from "./mainTopSearchBar";
+import PostList from "../postsPage/postList";
+
+//테스트용 데이터들
+const postsData = [
+  {
+    title: '게시글 제목 1',
+    galleryImages: [
+      {
+        original: 'url_to_image_1',
+        originalAlt: '게시글 제목 1',
+        thumbnail: 'url_to_image_1',
+        thumbnailAlt: '게시글 제목 1',
+      },
+      // 추가적인 이미지들...
+    ],
+    content: '게시글 내용 1',
+    rating: 5,
+    location: '서울',
+    comments: ['댓글 1-1', '댓글 1-2', '댓글 1-3'],
+    date: '2023-11-24',
+  },
+  {
+    title: '게시글 제목 2',
+    galleryImages: [
+      {
+        original: 'url_to_image_2',
+        originalAlt: '게시글 제목 2',
+        thumbnail: 'url_to_image_2',
+        thumbnailAlt: '게시글 제목 2',
+      },
+      // 추가적인 이미지들...
+    ],
+    content: '게시글 내용 2',
+    rating: 4,
+    location: '부산',
+    comments: ['댓글 2-1', '댓글 2-2'],
+    date: '2023-11-23',
+  },
+  // 추가적인 게시글들...
+];
 
 const MainPage = () => {
   const [data, setData] = useState(null);
@@ -69,6 +109,7 @@ const MainPage = () => {
           <MainTopNavigationBar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
         </MainTopBar>
       </MainTemplate>
+      <PostList posts={postsData} />
       <div>{data}</div>
       <div>{error}</div>
       <div>{data2}</div>
