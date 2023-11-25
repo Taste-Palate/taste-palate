@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../middlewares");
 
-const { join, login, logout, getMyProfile } = require("../controllers/auth");
+const { join, login, logout, getMyProfile, editMyProfile, editMyPassword } = require("../controllers/auth");
 require("dotenv").config();
 
 // "/auth"
@@ -18,5 +18,9 @@ router.get("/logout", logout);
 
 //내정보 조회
 router.get("/myInfo", verifyToken, getMyProfile);
+
+router.patch("/myInfo", verifyToken, editMyProfile)
+
+router.patch("/myPassword", verifyToken, editMyPassword)
 
 module.exports = router;

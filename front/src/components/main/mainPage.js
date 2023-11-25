@@ -4,72 +4,72 @@ import * as jwtDecode from "jwt-decode";
 import MainTemplate from "./mainTemplate";
 import MainTopBar from "./mainTopBar";
 import MainTopNavigationBar from "./mainTopNavigationBar";
-import MainTopSearchBar from "./mainTopSearchBar";
 import PostList from "../postsPage/postList";
 
-//테스트용 데이터들
-const postsData = [
-  {
-    title: '게시글 제목 1',
-    galleryImages: [
-      {
-        original: 'url_to_image_1',
-        originalAlt: '게시글 제목 1',
-        thumbnail: 'url_to_image_1',
-        thumbnailAlt: '게시글 제목 1',
-      },
-      // 추가적인 이미지들...
-    ],
-    content: '게시글 내용 1',
-    rating: 5,
-    location: '서울',
-    comments: ['댓글 1-1', '댓글 1-2', '댓글 1-3'],
-    date: '2023-11-24',
-  },
-  {
-    title: '게시글 제목 2',
-    galleryImages: [
-      {
-        original: 'url_to_image_2',
-        originalAlt: '게시글 제목 2',
-        thumbnail: 'url_to_image_2',
-        thumbnailAlt: '게시글 제목 2',
-      },
-      // 추가적인 이미지들...
-    ],
-    content: '게시글 내용 2',
-    rating: 4,
-    location: '부산',
-    comments: ['댓글 2-1', '댓글 2-2'],
-    date: '2023-11-23',
-  },
-  // 추가적인 게시글들...
-];
+//
+/*[{"id":1,"title":"1234","content":"1234","imagePath":"1234","rating":1234,"location":"1234","createdAt":"2023-11-23T12:34:56.000Z",
+"updatedAt":"2023-11-23T12:34:56.000Z","author":1,"User":{"nick":"1111","email":"1@naver.com"}}]
+*/
 
 const MainPage = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [error, setError] = useState(null);
-  const [data2, setData2] = useState(null);
-  const [error2, setError2] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const search = useCallback((id) => {
     axios
-      .get(`posts/getPostDetail/${id}`)
+      .get(`posts/${id}`)
       .then((response) => {
-        setData2(JSON.stringify(response.data));
+        setData(response.data.post.map((data) => {
+          //이미지 나열 함수 필요
+          return{
+            title: data.title,
+            galleryImages: [
+              {
+                original: 'url_to_image_1',
+                originalAlt: '게시글 제목 1',
+                thumbnail: 'url_to_image_1',
+                thumbnailAlt: '게시글 제목 1',
+              },
+              // 추가적인 이미지들...
+            ],
+            content: data.content,
+            rating: data.rating,
+            location: data.location,
+            comments: ['댓글 1-1', '댓글 1-2', '댓글 1-3'],
+            date: data.createdAt
+          }
+        }));
       })
       .catch((error) => {
-        setError2(JSON.stringify(error));
+        setError(JSON.stringify(error));
       });
   }, []);
 
   useEffect(() => {
-    // Axios를 사용하여 API 요청을 보냅니다.
     axios
-      .get("posts/getposts")
+      .get("posts")
       .then((response) => {
-        setData(JSON.stringify(response.data));
+        setData(response.data.post.map((data) => {
+          //이미지 나열 함수 필요
+          return{
+            title: data.title,
+            galleryImages: [
+              {
+                original: 'url_to_image_1',
+                originalAlt: '게시글 제목 1',
+                thumbnail: 'url_to_image_1',
+                thumbnailAlt: '게시글 제목 1',
+              },
+              // 추가적인 이미지들...
+            ],
+            content: data.content,
+            rating: data.rating,
+            location: data.location,
+            comments: ['댓글 1-1', '댓글 1-2', '댓글 1-3'],
+            date: data.createdAt
+          }
+        }));
       })
       .catch((error) => {
         setError(JSON.stringify(error));
@@ -105,15 +105,12 @@ const MainPage = () => {
     <div>
       <MainTemplate>
         <MainTopBar>
-          <MainTopSearchBar search={search} />
-          <MainTopNavigationBar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+          <MainTopNavigationBar search={search} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
         </MainTopBar>
       </MainTemplate>
-      <PostList posts={postsData} />
-      <div>{data}</div>
-      <div>{error}</div>
-      <div>{data2}</div>
-      <div>{error2}</div>
+      <PostList posts={data} />
+      {error && <div>오류가 발생했습니다.</div>}
+      {!error && !data && <div>일치하는 검색결과가 없습니다.</div>}
     </div>
   );
 };

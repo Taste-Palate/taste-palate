@@ -1,4 +1,5 @@
 const { User, Post } = require("../models");
+const { Op } = require('sequelize');
 
 exports.getPosts = async (req, res, next) => {
   try {
@@ -12,7 +13,7 @@ exports.getPosts = async (req, res, next) => {
       ]
     });
 
-    if (!post) {
+    if (post.length === 0) {
       return res.status(400).json({
         success: false,
         message: "목록 조회 실패"
@@ -73,8 +74,10 @@ exports.getMyPosts = async (req, res) => {
 
 exports.getPostDetail = async (req, res, next) => {
   try {
-    const post = await Post.findOne({
-      where: { id: req.params.id },
+    const post = await Post.findAll({
+      where: { title: {
+        [Op.like]: `%${req.params.title}%`
+      } },
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
@@ -84,7 +87,7 @@ exports.getPostDetail = async (req, res, next) => {
       ]
     });
 
-    if (!post) {
+    if (post.length === 0) {
       return res.status(401).json({
         success: false,
         message: "상세 조회 실패",

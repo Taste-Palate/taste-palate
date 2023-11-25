@@ -1,5 +1,3 @@
-import './mainTopBar.scss'
-
 const MainTopBar = ({children}) => {
   return(
     <div className="MainTopBar">{children}</div>

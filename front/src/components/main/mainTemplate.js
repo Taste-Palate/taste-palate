@@ -1,5 +1,3 @@
-import './mainTemplate.scss';
-
 const MainTemplate = ({children}) => {
   return (
     <div className='MainTemplate'>

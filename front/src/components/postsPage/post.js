@@ -5,7 +5,7 @@ import "react-image-gallery/styles/css/image-gallery.css";
 
 const Post = ({ title, galleryImages, content, rating, location, comments, date }) => {
   return (
-    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px', width: '300px' }}>
+    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px', width: '800px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <h2>{title}</h2>
         <p>{date}</p>

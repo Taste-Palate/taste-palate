@@ -7,6 +7,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true
       },
+      selfIntroduction: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: "자기소개를 입력해주세요"
+      }
+      ,
       nick: {
         type: DataTypes.STRING(15),
         allowNull: false

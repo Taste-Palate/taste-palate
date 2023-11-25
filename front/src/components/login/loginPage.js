@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [data, setData] = useState(null);
   const navigate = useNavigate();
 
   const onSubmit = async (e) => {
@@ -23,7 +22,7 @@ const LoginPage = () => {
       navigate("/");
     } catch (error) {
       // 로그인 실패 시
-      setData(error.response.data.message || "로그인에 실패했습니다.");
+      alert("로그인에 실패했습니다.");
     }
   };
 
@@ -56,7 +55,6 @@ const LoginPage = () => {
       <Link to={"/auth/join"}>
         <button type="button">회원가입하기</button>
       </Link>
-      <div>{data}</div>
     </form>
   );
 };
