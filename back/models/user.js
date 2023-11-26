@@ -11,11 +11,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
         defaultValue: "자기소개를 입력해주세요"
-      }
-      ,
+      },
       nick: {
         type: DataTypes.STRING(15),
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       password: {
         type: DataTypes.STRING(100),
@@ -34,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (db) => {
+    db.User.hasMany(db.Comment, { foreignKey: "nick", sourceKey: "nick" });
     db.User.hasMany(db.Post, { foreignKey: "author", sourceKey: "id" });
   };
   return User;

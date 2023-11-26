@@ -5,25 +5,24 @@ module.exports = (sequelize, DataTypes) => {
       title: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        validator: {
-        }
-    },
-    content: {
+        validator: {}
+      },
+      content: {
         type: DataTypes.TEXT,
         allowNull: false
-    },
-    imagePath: {
-        type: DataTypes.STRING(255), 
-        allowNull: true
-    },
-    rating: {
-        type: DataTypes.INTEGER, 
-        allowNull: true,
-    },
-    location: {
+      },
+      imagePath: {
         type: DataTypes.STRING(255),
-        allowNull: true 
-    }
+        allowNull: true
+      },
+      rating: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      location: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      }
     },
     {
       timestamps: true,
@@ -37,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Post.associate = (db) => {
     db.Post.belongsTo(db.User, { foreignKey: "author", targetKey: "id" });
+    db.Post.hasMany(db.Comment, { foreignKey: "postId", sourceKey: "id" });
   };
 
   // 추가적인 관계 설정이나 메서드 등이 필요하면 여기에 추가할 수 있습니다.

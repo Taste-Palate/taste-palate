@@ -2,10 +2,11 @@ const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const postRouter = require("./routes/post");
+const commentRouter = require("./routes/comment");
 const cors = require("cors");
 const { sequelize } = require("./models");
 const authRouter = require("./routes/auth");
-const path = require('path');
+const path = require("path");
 const cookieParser = require("cookie-parser");
 
 //익스프레스 객체 할당
@@ -36,15 +37,16 @@ app.use(express.urlencoded({ extended: true }));
 //모든 도메인에서 API사용 허용
 app.use(cors());
 
-app.use(express.static(path.join(__dirname, '../front/build')));
+app.use(express.static(path.join(__dirname, "../front/build")));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../front/build', 'index.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../front/build", "index.html"));
 });
 
 //상품관련 라우터
 app.use("/posts", postRouter);
 app.use("/auth", authRouter);
+app.use("/comment", commentRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);

@@ -1,5 +1,5 @@
 const { User, Post } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 exports.getPosts = async (req, res, next) => {
   try {
@@ -75,9 +75,11 @@ exports.getMyPosts = async (req, res) => {
 exports.getPostDetail = async (req, res, next) => {
   try {
     const post = await Post.findAll({
-      where: { title: {
-        [Op.like]: `%${req.params.title}%`
-      } },
+      where: {
+        title: {
+          [Op.like]: `%${req.params.title}%`
+        }
+      },
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
@@ -119,7 +121,7 @@ exports.createPost = async (req, res, next) => {
     });
 
     const post = new Post({
-      userId: User.id,
+      userId: user.id,
       title,
       content,
       imagePath,

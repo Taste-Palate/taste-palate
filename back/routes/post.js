@@ -23,7 +23,7 @@ router.get("/:title", getPostDetail);
 router.post("/", verifyToken, createPost);
 
 //게시물 수정
-router.put("/:id",verifyToken, putPost );
+router.put("/:id", verifyToken, putPost);
 
 //게시물 삭제
 router.delete("/:id", verifyToken, deletePost);
