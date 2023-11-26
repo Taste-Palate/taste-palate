@@ -21,6 +21,6 @@ router.get("/myInfo", verifyToken, getMyProfile);
 
 router.patch("/myInfo", verifyToken, editMyProfile)
 
-router.patch("/myPassword", verifyToken, editMyPassword)
+router.patch("/myPassword", verifyToken,editMyPassword)
 
 module.exports = router;

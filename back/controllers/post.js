@@ -1,5 +1,5 @@
 const { User, Post } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 exports.getPosts = async (req, res, next) => {
   try {
@@ -10,6 +10,9 @@ exports.getPosts = async (req, res, next) => {
           model: User,
           attributes: ["nick", "email"]
         }
+      ],
+      order: [
+        ["createdAt", "DESC"] // Order by createdAt in descending order
       ]
     });
 
@@ -75,15 +78,20 @@ exports.getMyPosts = async (req, res) => {
 exports.getPostDetail = async (req, res, next) => {
   try {
     const post = await Post.findAll({
-      where: { title: {
-        [Op.like]: `%${req.params.title}%`
-      } },
+      where: {
+        title: {
+          [Op.like]: `%${req.params.title}%`
+        }
+      },
       attributes: ["id", "title", "content", "imagePath", "rating", "location", "createdAt", "updatedAt", "author"],
       include: [
         {
           model: User,
           attributes: ["nick", "email"]
         }
+      ],
+      order: [
+        ["createdAt", "DESC"] // Order by createdAt in descending order
       ]
     });
 
@@ -110,53 +118,42 @@ exports.getPostDetail = async (req, res, next) => {
 };
 
 exports.createPost = async (req, res, next) => {
-  try {
-    const { title, content, imagePath, rating, location } = req.body;
+  const { title, content, rating, location } = req.body;
+  if (!title || !content || !rating || !location) {
+    res.status(400).json({message: "본문 잘못됨."})
+  }
 
+  let imagePath = null;
+  if (req.files) {
+    imagePath = req.files.map((file) => file.location).join(",");
+  }
+  //여기서 해야한다.
+  try {
     // 유저 찾기
     const user = await User.findOne({
       where: { email: res.locals.user.email }
     });
 
-    const post = new Post({
-      userId: User.id,
+    const post = await Post.create({
       title,
       content,
       imagePath,
       rating,
       location
     });
+    await user.addPost(post);
 
-    await post.save();
+    //user.addPost하기
 
-    if (!title || !content || !imagePath || !rating || !location) {
-      // 공란이 있으면 작성 실패
-      if (title) {
-        alert("제목을 작성해주세요");
-      } else if (content) {
-        alert("내용을 작성해주세요");
-        return;
-      } else if (imagePath) {
-        alert("이미지를 삽입해주세요");
-        return;
-      } else if (rating) {
-        alert("별점을 등록해주세요");
-        return;
-      } else if (location) {
-        alert("위치를 설정해주세요");
-        return;
-      }
-    } else {
-      return res.status(200).json({
-        success: true,
-        message: "게시글 등록에 성공하였습니다."
-      });
-    }
+    return res.status(200).json({
+      success: true,
+      message: "게시글 등록에 성공하였습니다."
+    });
   } catch (errMessage) {
     console.log(errMessage);
     return res.status(405).json({
       success: false,
-      message: "공란이 없게 작성해주세요"
+      message: "실패"
     });
   }
 };
@@ -210,8 +207,8 @@ exports.deletePost = async (req, res, next) => {
         message: "게시글을 삭제할 권한이 존재하지 않습니다."
       });
     }
-
     await post.destroy();
+    return res.json("게시글 삭제가 성공했습니다.");
   } catch (error) {
     res.status(500).json({
       message: "오류가 발생했습니다."
