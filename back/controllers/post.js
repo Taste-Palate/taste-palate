@@ -33,7 +33,7 @@ exports.getPosts = async (req, res, next) => {
 
     return res.status(500).json({
       success: false,
-      message: "예기치 못한 에러가 발생했습니다 관리자에게 문의 해주세요."
+      message: "예기치 못한 에러가 발생했습니다. 관리자에게 문의 해주세요."
     });
   }
 };
@@ -70,7 +70,7 @@ exports.getMyPosts = async (req, res) => {
     console.log(errMessage);
     return res.status(500).json({
       success: false,
-      message: "예기치 못한 에러가 발생했습니다 관리자에게 문의 해주세요."
+      message: "예기치 못한 에러가 발생했습니다. 관리자에게 문의 해주세요."
     });
   }
 };
@@ -96,7 +96,7 @@ exports.getPostDetail = async (req, res, next) => {
     });
 
     if (post.length === 0) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: "상세 조회 실패",
         post
@@ -112,7 +112,7 @@ exports.getPostDetail = async (req, res, next) => {
     console.log(errMessage);
     return res.status(500).json({
       success: false,
-      message: "Error!"
+      message: "예기치 못한 에러가 발생했습니다. 관리자에게 문의 해주세요."
     });
   }
 };
@@ -120,7 +120,7 @@ exports.getPostDetail = async (req, res, next) => {
 exports.createPost = async (req, res, next) => {
   const { title, content, rating, location } = req.body;
   if (!title || !content || !rating || !location) {
-    res.status(400).json({message: "본문 잘못됨."})
+    res.status(400).json({message: "공란이 없게 작성해주세요."})
   }
 
   let imagePath = null;
@@ -148,13 +148,13 @@ exports.createPost = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "게시글 등록에 성공하였습니다."
+      message: "게시글 등록이 완료되었습니다."
     });
   } catch (errMessage) {
     console.log(errMessage);
-    return res.status(405).json({
+    return res.status(500).json({
       success: false,
-      message: "실패"
+      message: "예기치 못한 에러가 발생했습니다. 관리자에게 문의 해주세요."
     });
   }
 };
@@ -187,9 +187,11 @@ exports.putPost = async (req, res, next) => {
     post.location = location;
 
     await post.save();
-  } catch (error) {
+    return res.json("게시글 수정이 완료되었습니다.")
+  } catch (errMessage) {
     res.status(500).json({
-      message: "오류가 발생했습니다."
+      success: false,
+      message: "예기치 못한 에러가 발생했습니다. 관리자에게 문의 해주세요."
     });
   }
 };
@@ -209,10 +211,11 @@ exports.deletePost = async (req, res, next) => {
       });
     }
     await post.destroy();
-    return res.json("게시글 삭제가 성공했습니다.");
-  } catch (error) {
+    return res.json("게시글 삭제가 완료되었습니다.");
+  } catch (errMessage) {
     res.status(500).json({
-      message: "오류가 발생했습니다."
+      success: false,
+      message: "예기치 못한 에러가 발생했습니다. 관리자에게 문의 해주세요."
     });
   }
 };

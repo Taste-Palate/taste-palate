@@ -36,7 +36,7 @@ exports.join = async (req, res) => {
     emailValiChk(email);
 
     if (password != passwordCheck) {
-      return res.status(400).json({ message: "비밀번호와 비밀번호 확인 다릅니다." });
+      return res.status(400).json({ message: "비밀번호와 비밀번호 확인이 다릅니다." });
     }
 
     const bcryptPassword = await bcrypt.hash(password, 4);
@@ -50,7 +50,7 @@ exports.join = async (req, res) => {
         nick: nick
       }
     });
-  } catch (error) {
+  } catch (errMessage) {
     console.log(error);
   }
   return;
@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "모든 항목을 입력 해 주세요." });
+      return res.status(400).json({ message: "모든 항목을 입력해 주세요." });
     }
 
     const user = await User.findOne({ where: { email } });
@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
     res.cookie("authorization", `Bearer ${token}`);
 
     return res.status(200).json({ message: "성공적으로 로그인 되었습니다." });
-  } catch (error) {
+  } catch (errMessage) {
     console.log(error);
   }
 };
