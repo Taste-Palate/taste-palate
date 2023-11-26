@@ -3,7 +3,8 @@ const db = require("../models");
 const User = db.User;
 const jwt = require("jsonwebtoken");
 const { locales } = require("validator/lib/isIBAN");
-
+const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const { SECRET_KEY } = process.env;
 
@@ -40,7 +41,28 @@ exports.join = async (req, res) => {
     }
 
     const bcryptPassword = await bcrypt.hash(password, 4);
-    await User.create({ email, password: bcryptPassword, nick });
+    const uuid = uuidv4();
+    await User.create({ email, password: bcryptPassword, nick, uuid });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // 또는 직접 SMTP 설정을 제공할 수 있습니다.
+      auth: {
+        user: process.env.GMAILID,
+        pass: process.env.AUTHKEY
+      }
+    });
+
+    const verificationLink = `http://localhost:8000/auth/verifyEmail?number=${uuid}&id=${email}`;
+
+    const mailOptions = {
+      from: process.env.GMAILID,
+      to: email,
+      subject: "테스트 이메일",
+      html: `<p>계정 이메일 인증을 하려면 다음 링크를 클릭하세요: <a href="${verificationLink}">이메일 인증 하기</a></p>`
+    };
+
+    // 이메일을 보냅니다.
+    transporter.sendMail(mailOptions);
 
     return res.status(201).json({
       success: "true",
@@ -68,6 +90,10 @@ exports.login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: "해당 이메일로 가입된 아이디가 없습니다." });
+    }
+
+    if(!user.isVerified) {
+      return res.status(400).json({ message: "이메일 인증이 되어 있지 않은 계정입니다."});
     }
 
     const comparePassword = await bcrypt.compare(password, user.password);
@@ -98,14 +124,13 @@ exports.logout = async (req, res) => {
   }
 };
 
-
 exports.getMyProfile = async (req, res) => {
   try {
     //res.locals.user에 찾은 유저 있음.
     // selfIntroduction: ->이걸 넘겨줘야 함.
-    // 
+    //
     const { id, email, nick, selfIntroduction } = res.locals.user;
-    res.status(200).json({ user: id, email, nick, selfIntroduction});
+    res.status(200).json({ user: id, email, nick, selfIntroduction });
   } catch (error) {
     //실패시 추가
   }
@@ -117,20 +142,20 @@ exports.editMyProfile = async (req, res, next) => {
   const user = res.locals.user;
   const updatedData = {
     nick: req.body.nick,
-    selfIntroduction: req.body.selfIntroduction,
-  }
+    selfIntroduction: req.body.selfIntroduction
+  };
   try {
     await user.update(updatedData);
     res.json({
-      code:200,
+      code: 200,
       message: "회원정보를 성공적으로 수정하였습니다."
-    })
-    return
+    });
+    return;
   } catch (error) {
-    console.error(error)
-    next(error)
+    console.error(error);
+    next(error);
   }
-}
+};
 
 exports.editMyPassword = async (req, res, next) => {
   const user = res.locals.user;
@@ -139,22 +164,49 @@ exports.editMyPassword = async (req, res, next) => {
   if (!comparePassword) {
     return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
   }
-  if(req.body.newPassword != req.body.newPasswordConfirm){
-    return res.status(400).json({ message: "새로운 비밀번호가 서로 일치하지 않습니다."})
+  if (req.body.newPassword != req.body.newPasswordConfirm) {
+    return res.status(400).json({ message: "새로운 비밀번호가 서로 일치하지 않습니다." });
   }
-  const bcryptPassword = await bcrypt.hash(req.body.newPassword, 4)
+  const bcryptPassword = await bcrypt.hash(req.body.newPassword, 4);
   const updatedData = {
     password: bcryptPassword
-  }
+  };
   try {
     await user.update(updatedData);
     res.json({
-      code:200,
+      code: 200,
       message: "회원정보를 성공적으로 수정하였습니다."
-    })
-    return
+    });
+    return;
   } catch (error) {
-    console.error(error)
-    next(error)
+    console.error(error);
+    next(error);
   }
-}
+};
+
+exports.verifyEmail = async (req, res) => {
+  try {
+    if (req.query.number && req.query.id) {
+      const exUser = await User.findOne({ where: { email: req.query.id } });
+
+      if (!exUser) {
+        return res.json("존재하지 않는 사용자입니다.");
+      }
+
+      if (exUser.uuid !== req.query.number) {
+        return res.json("유효하지 않은 인증입니다.");
+      }
+
+      // Update the isVerified field and save the changes to the database
+      exUser.isVerified = true;
+      await exUser.save();
+
+      return res.json("이메일 인증이 성공적으로 완료되었습니다.");
+    } else {
+      return res.json("유효하지 않은 인증입니다.");
+    }
+  } catch (error) {
+    console.error("이메일 인증 중 오류 발생:", error);
+    return res.status(500).json("서버 오류");
+  }
+};

@@ -101,26 +101,20 @@ const MainPage = () => {
   }, []);
 
   useEffect(() => {
-    // 쿠키를 확인하여 로그인 상태를 설정합니다.
     const authorizationCookie = document.cookie
       .split("; ")
       .find((row) => row.startsWith("authorization="));
 
     if (authorizationCookie) {
-      // 쿠키가 존재하면 토큰 디코딩 및 만료 여부 확인
       const token = authorizationCookie.split("=")[1];
       const decodedToken = jwtDecode(token);
 
-      // 토큰의 만료 시간과 현재 시간 비교
       if (decodedToken.exp * 1000 > Date.now()) {
-        // 만료되지 않았으면 로그인 상태 유지
         setIsLoggedIn(true);
       } else {
-        // 만료되었으면 로그인 상태 해제
         setIsLoggedIn(false);
       }
     } else {
-      // 쿠키가 없으면 로그인 상태 해제
       setIsLoggedIn(false);
     }
   }, []);
