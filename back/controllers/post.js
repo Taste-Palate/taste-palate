@@ -134,6 +134,7 @@ exports.createPost = async (req, res, next) => {
       where: { email: res.locals.user.email }
     });
 
+
     const post = await Post.create({
       title,
       content,

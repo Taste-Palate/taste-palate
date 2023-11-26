@@ -69,6 +69,9 @@ const PostAddPage = () => {
     formData.append("content", content);
     formData.append("rating", rating);
     formData.append("location", location);
+    //폼데이터 추가로 모든 url을 넣는다.
+    // 이후 이미지들이 올라간다.
+    // 수정된 이미지들 중 기존에 있던 이미지들의 경로를 유지한다.
 
     // 이미지를 FormData에 추가
     galleryImages.forEach((image, index) => {
