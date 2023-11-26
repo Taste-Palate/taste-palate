@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../middlewares");
 
-const { join, login, logout, getMyProfile, editMyProfile, editMyPassword } = require("../controllers/auth");
+const { join, login, logout, getMyProfile, editMyProfile, editMyPassword, verifyEmail } = require("../controllers/auth");
 require("dotenv").config();
 
 // "/auth"
@@ -22,5 +22,7 @@ router.get("/myInfo", verifyToken, getMyProfile);
 router.patch("/myInfo", verifyToken, editMyProfile)
 
 router.patch("/myPassword", verifyToken,editMyPassword)
+
+router.get("/verifyEmail",verifyEmail);
 
 module.exports = router;

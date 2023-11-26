@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const db = require("../models");
 const User = db.User;
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
 const { SECRET_KEY } = process.env;
 
 exports.verifyToken = async (req, res, next) => {
@@ -41,3 +44,6 @@ exports.verifyToken = async (req, res, next) => {
     return res.status(401).json({ message: "로그인 후 사용이 가능합니다." });
   }
 };
+//참고용 코드
+
+
