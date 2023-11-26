@@ -98,14 +98,13 @@ exports.logout = async (req, res) => {
   }
 };
 
-
 exports.getMyProfile = async (req, res) => {
   try {
     //res.locals.user에 찾은 유저 있음.
     // selfIntroduction: ->이걸 넘겨줘야 함.
-    // 
+    //
     const { id, email, nick, selfIntroduction } = res.locals.user;
-    res.status(200).json({ user: id, email, nick, selfIntroduction});
+    return res.status(200).json({ user: id, email, nick, selfIntroduction });
   } catch (error) {
     //실패시 추가
   }
@@ -117,20 +116,20 @@ exports.editMyProfile = async (req, res, next) => {
   const user = res.locals.user;
   const updatedData = {
     nick: req.body.nick,
-    selfIntroduction: req.body.selfIntroduction,
-  }
+    selfIntroduction: req.body.selfIntroduction
+  };
   try {
     await user.update(updatedData);
     res.json({
-      code:200,
+      code: 200,
       message: "회원정보를 성공적으로 수정하였습니다."
-    })
-    return
+    });
+    return;
   } catch (error) {
-    console.error(error)
-    next(error)
+    console.error(error);
+    next(error);
   }
-}
+};
 
 exports.editMyPassword = async (req, res, next) => {
   const user = res.locals.user;
@@ -139,22 +138,22 @@ exports.editMyPassword = async (req, res, next) => {
   if (!comparePassword) {
     return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
   }
-  if(req.body.newPassword != req.body.newPasswordConfirm){
-    return res.status(400).json({ message: "새로운 비밀번호가 서로 일치하지 않습니다."})
+  if (req.body.newPassword != req.body.newPasswordConfirm) {
+    return res.status(400).json({ message: "새로운 비밀번호가 서로 일치하지 않습니다." });
   }
-  const bcryptPassword = await bcrypt.hash(req.body.newPassword, 4)
+  const bcryptPassword = await bcrypt.hash(req.body.newPassword, 4);
   const updatedData = {
     password: bcryptPassword
-  }
+  };
   try {
     await user.update(updatedData);
     res.json({
-      code:200,
+      code: 200,
       message: "회원정보를 성공적으로 수정하였습니다."
-    })
-    return
+    });
+    return;
   } catch (error) {
-    console.error(error)
-    next(error)
+    console.error(error);
+    next(error);
   }
-}
+};
