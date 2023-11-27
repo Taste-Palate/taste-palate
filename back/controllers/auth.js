@@ -52,7 +52,7 @@ exports.join = async (req, res) => {
       }
     });
 
-    const verificationLink = `http://localhost:8000/auth/verifyEmail?number=${uuid}&id=${email}`;
+    const verificationLink = `http://15.164.97.179:8000/auth/verifyEmail?number=${uuid}&id=${email}`;
 
     const mailOptions = {
       from: process.env.GMAILID,
