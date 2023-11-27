@@ -12,7 +12,6 @@ const { kakao } = window;
 const PostAddPage = () => {
   const useloca = useLocation();
   const params = useloca.state;
-  console.log("****************", params)
   const [title, setTitle] = useState(params?.title || "");
   const [content, setContent] = useState(params?.content || "");
   const [rating, setRating] = useState(params?.rating || 4.0);
