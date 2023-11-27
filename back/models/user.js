@@ -20,6 +20,15 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING(100),
         allowNull: false
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
+      uuid: {
+        type: DataTypes.STRING(40),
+        allowNull: false,
       }
     },
     {

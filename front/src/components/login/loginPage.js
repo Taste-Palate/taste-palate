@@ -21,7 +21,6 @@ const LoginPage = () => {
       alert("로그인에 성공했습니다.");
       navigate("/");
     } catch (error) {
-      // 로그인 실패 시
       alert("로그인에 실패했습니다.");
     }
   };
